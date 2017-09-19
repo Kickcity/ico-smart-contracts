@@ -27,6 +27,13 @@ contract KickcityCrowdsale is Owned, SmartTokenController {
     _;
   }
 
+  uint256 private maxGasPrice = 0.05 szabo; // 50 Gwei
+
+  modifier validGasPrice() {
+    assert(tx.gasprice <= maxGasPrice);
+    _;
+  }
+
   address private kickcityWallet;
 
   function KickcityCrowdsale(uint256 start, uint256 end, KickcityToken _token, address beneficiary) SmartTokenController(_token) {
@@ -58,7 +65,7 @@ contract KickcityCrowdsale is Owned, SmartTokenController {
   // triggered on each contribution
   event Contribution(address indexed contributor, uint256 contributed, uint256 tokensReceived);
 
-  function processContribution() private duringSale capAvailable(msg.value) {
+  function processContribution() private validGasPrice duringSale capAvailable(msg.value) {
     var contribution = msg.value;
     uint256 kicks = calcKicks(contribution);
 
@@ -69,7 +76,6 @@ contract KickcityCrowdsale is Owned, SmartTokenController {
     Contribution(msg.sender, contribution, kicks);
   }
 
-// todo: limit gas price?
   function () payable {
     if (msg.value > 0) {
       processContribution();

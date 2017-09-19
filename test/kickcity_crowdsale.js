@@ -8,7 +8,7 @@ async function createSale(startTime = 0, endTime = 0) {
     token = await KickcityToken.new();
     let tokenAddr = await token.address;
     let beneficiar = accounts[6];
-    let controller =  await KickcityCrowdsale.new(startTime, endTime, tokenAddr, beneficiar);
+    let controller = await KickcityCrowdsale.new(startTime, endTime, tokenAddr, beneficiar);
     await token.transferOwnership(controller.address);
     await controller.acceptTokenOwnership();
     return controller;
@@ -29,10 +29,10 @@ async function createOnGoingSale() {
 async function shouldThrow(f) {
     try {
         await f();
-        throw new Error("Function didn't throw");
+        assert(false, "didn't throw");
     } catch (error) {
         let strError = error.toString();
-        assert(strError.includes('invalid opcode') || strError.includes('invalid JUMP'), 
+        assert(strError.includes('invalid opcode') || strError.includes('invalid JUMP'),
             "shoud be RPC error, but was: " + strError);
     }
 }
@@ -70,7 +70,7 @@ contract('KickcityCrowdsale', function (_accounts) {
         let sale = await createSale();
         let cap = web3.toWei(5000, "ether")
         await shouldThrow(async () => {
-            await sale.setHardCap(cap, {from: accounts[1]});
+            await sale.setHardCap(cap, { from: accounts[1] });
         });
     })
 
@@ -80,8 +80,8 @@ contract('KickcityCrowdsale', function (_accounts) {
 
         let startWalletBalance = await web3.eth.getBalance(accounts[6]);
         let startEtherCollected = await sale.etherCollected.call();
-        
-        await sale.sendTransaction({from: accounts[0], value: price})
+
+        await sale.sendTransaction({ from: accounts[0], value: price })
 
         let userTokenBalance = await token.balanceOf.call(accounts[0]);
         let endWalletBalance = await web3.eth.getBalance(accounts[6]);
@@ -96,17 +96,29 @@ contract('KickcityCrowdsale', function (_accounts) {
         let sale = await createSale();
         let price = web3.toWei(1, "ether");
         shouldThrow(async () => {
-            await sale.sendTransaction({from: accounts[0], value: price});
+            await sale.sendTransaction({ from: accounts[0], value: price });
         });
     })
 
-    it("cannot contribute over hard cap", async() => {
+    it("cannot contribute over hard cap", async () => {
         let sale = await createOnGoingSale();
         await sale.setHardCap(web3.toWei(2, "ether"));
         let price = web3.toWei(5, "ether");
 
         shouldThrow(async () => {
-            await sale.sendTransaction({from: accounts[0], value: price});
+            await sale.sendTransaction({ from: accounts[0], value: price });
+        });
+    });
+
+    it("cannot contribute with bad gas price", async () => {
+        let sale = await createOnGoingSale();
+        let price = web3.toWei(1, "ether");
+        shouldThrow(async () => {
+            await sale.sendTransaction({
+                from: accounts[0],
+                value: price,
+                gasPrice: 60000000000
+            });
         });
     });
 });
