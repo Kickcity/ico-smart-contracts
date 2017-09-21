@@ -1,3 +1,4 @@
+const KickcityPresale = artifacts.require('KickcityPresale')
 const KickcityCrowdsale = artifacts.require('KickcityCrowdsale')
 const KickcityToken = artifacts.require('KickcityToken')
 
@@ -9,6 +10,16 @@ async function createSale(startTime = 0, endTime = 0) {
     let tokenAddr = await token.address;
     let beneficiar = accounts[6];
     let controller = await KickcityCrowdsale.new(startTime, endTime, tokenAddr, beneficiar);
+    await token.transferOwnership(controller.address);
+    await controller.acceptTokenOwnership();
+    return controller;
+}
+
+async function createPresale(startTime = 0, endTime = 0) {
+    token = await KickcityToken.new();
+    let tokenAddr = await token.address;
+    let beneficiar = accounts[6];
+    let controller = await KickcityPresale.new(startTime, endTime, tokenAddr, beneficiar);
     await token.transferOwnership(controller.address);
     await controller.acceptTokenOwnership();
     return controller;
@@ -37,7 +48,7 @@ async function shouldThrow(f) {
     }
 }
 
-contract('KickcityCrowdsale', function (_accounts) {
+contract('KickcitySale', function (_accounts) {
     before(function () {
         accounts = _accounts;
     });
@@ -49,13 +60,21 @@ contract('KickcityCrowdsale', function (_accounts) {
     });
 
     it("should convert ether to kicks", async () => {
-        let sale = await createSale();
+        let sale = await createPresale();
         // 40% bonus
         let x1 = await sale.calcKicks.call(web3.toWei(1, "ether"));
         assert.equal(x1.toNumber(), web3.toWei(4200, "ether"));
         // 100% bonus
         let x2 = await sale.calcKicks.call(web3.toWei(150, "ether"));
         assert.equal(x2.toNumber(), web3.toWei(900000, "ether"));
+
+        let csale = await createOnGoingSale();
+        let x3 = await csale.calcKicks.call(web3.toWei(1, "ether"));
+        assert.equal(x3.toNumber(), web3.toWei(3000, "ether"));
+
+        let newsale = await createSale(today.getTime() / 1000, addDays(today, +5).getTime() / 1000);
+        let x4 = await newsale.calcKicks.call(web3.toWei(1, "ether"));
+        assert.equal(x4.toNumber(), web3.toWei(4200, "ether"));
     });
 
     it("can set ether hard cap", async () => {
@@ -87,7 +106,7 @@ contract('KickcityCrowdsale', function (_accounts) {
         let endWalletBalance = await web3.eth.getBalance(accounts[6]);
         let endEtherCollected = await sale.etherCollected.call();
 
-        assert.equal(userTokenBalance.toNumber(), web3.toWei(4200, "ether"), "user didn't receive tokens");
+        assert.equal(userTokenBalance.toNumber(), web3.toWei(3000, "ether"), "user didn't receive tokens");
         assert.equal(startWalletBalance.plus(price).toNumber(), endWalletBalance.toNumber(), "wallet didn't receive ether");
         assert.equal(startEtherCollected.plus(price).toNumber(), endEtherCollected.toNumber(), "ether collected value didn't get updated properly");
     });

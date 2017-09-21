@@ -1,5 +1,5 @@
 var KickToken = artifacts.require("./KickcityToken.sol");
-var KickController = artifacts.require("./KickcityCrowdsale.sol");
+var KickController = artifacts.require("./KickcityPresale");
 
 module.exports = function(deployer) {
   deployer.deploy(KickToken).then(function() {
