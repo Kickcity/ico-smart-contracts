@@ -37,6 +37,8 @@ contract KickcityAbstractCrowdsale is Owned, SmartTokenController {
   address private kickcityWallet;
 
   function KickcityAbstractCrowdsale(uint256 start, uint256 end, KickcityToken _token, address beneficiary) SmartTokenController(_token) {
+    assert(start < end);
+    assert(beneficiary != 0x0);
     saleStartTime = start;
     saleEndTime = end;
     kickcityWallet = beneficiary;
@@ -48,18 +50,18 @@ contract KickcityAbstractCrowdsale is Owned, SmartTokenController {
   uint256 internal oneEtherInKicks = 3000;
   uint256 internal minEtherContrib = 3 finney; // 0.003 ETH
 
-  function calcKicks(uint256 etherVal) public returns (uint256 kicksVal);
+  function calcKicks(uint256 etherVal) constant public returns (uint256 kicksVal);
 
   // triggered on each contribution
   event Contribution(address indexed contributor, uint256 contributed, uint256 tokensReceived);
 
   function processContribution() private validGasPrice duringSale capAvailable(msg.value) {
-    var contribution = msg.value;
+    uint256 contribution = msg.value;
     uint256 kicks = calcKicks(contribution);
 
     assert(kickcityWallet.send(contribution));
     token.issue(msg.sender, kicks);
-    etherCollected += contribution;
+    etherCollected = safeAdd(etherCollected, contribution);
 
     Contribution(msg.sender, contribution, kicks);
   }

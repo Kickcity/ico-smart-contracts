@@ -5,7 +5,7 @@ const KickcityToken = artifacts.require('KickcityToken')
 let accounts;
 let token;
 
-async function createSale(startTime = 0, endTime = 0) {
+async function createSale(startTime = 0, endTime = 1) {
     token = await KickcityToken.new();
     let tokenAddr = await token.address;
     let beneficiar = accounts[6];
@@ -15,7 +15,7 @@ async function createSale(startTime = 0, endTime = 0) {
     return controller;
 }
 
-async function createPresale(startTime = 0, endTime = 0) {
+async function createPresale(startTime = 0, endTime = 1) {
     token = await KickcityToken.new();
     let tokenAddr = await token.address;
     let beneficiar = accounts[6];
@@ -57,6 +57,15 @@ contract('KickcitySale', function (_accounts) {
         let sale = await createSale();
         let hCap = await sale.etherHardCap.call();
         assert.equal(hCap.toNumber(), web3.toWei(43100, "ether"))
+    });
+
+    it("cannot create sale with incorrenct values", async () => {
+        await shouldThrow(async () => {
+            let sale = await createSale(100, 50)
+        });
+        await shouldThrow(async () => {
+            let sale = await KickcityPresale.new(50, 100, 0, 0);
+        });
     });
 
     it("should convert ether to kicks", async () => {

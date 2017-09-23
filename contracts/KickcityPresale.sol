@@ -7,12 +7,12 @@ contract KickcityPresale is KickcityAbstractCrowdsale {
 
     uint256 private additionalBonusValue = 100 ether;
 
-    function calcKicks(uint256 etherVal) public returns (uint256 kicksVal) {
+    function calcKicks(uint256 etherVal) constant public returns (uint256 kicksVal) {
         assert(etherVal >= minEtherContrib);
-        var value = safeMul(etherVal, oneEtherInKicks);
+        uint256 value = safeMul(etherVal, oneEtherInKicks);
         if (etherVal < additionalBonusValue) {
             // 40% bonus for contributions less than 100ETH
-            kicksVal = safeAdd(value, (value / 10 * 4)); 
+            kicksVal = safeAdd(value, safeMul(value / 10, 4)); 
         } else {
             // 100% bonus for contributions more than 100ETH
             kicksVal = safeMul(value, 2);
