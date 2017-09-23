@@ -5,6 +5,7 @@ let instance;
 contract('KickcityToken', function (accounts) {
     before(async () => {
         instance = await KICK.deployed();
+        await instance.disableTransfers(false);
     });
     it("verifies token parameters", async () => {
         let name = await instance.name.call();
