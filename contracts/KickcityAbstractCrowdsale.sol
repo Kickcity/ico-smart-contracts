@@ -14,11 +14,6 @@ contract KickcityAbstractCrowdsale is Owned, SmartTokenController {
      etherHardCap = newCap;
   }
 
-  modifier capAvailable(uint256 contribution) {
-    assert(safeAdd(etherCollected, contribution) <= etherHardCap);
-    _;
-  }
-
   uint256 internal saleStartTime;
   uint256 internal saleEndTime;
 
@@ -55,15 +50,27 @@ contract KickcityAbstractCrowdsale is Owned, SmartTokenController {
   // triggered on each contribution
   event Contribution(address indexed contributor, uint256 contributed, uint256 tokensReceived);
 
-  function processContribution() private validGasPrice duringSale capAvailable(msg.value) {
-    uint256 contribution = msg.value;
-    uint256 kicks = calcKicks(contribution);
+  function processContribution() private validGasPrice duringSale {
+    uint256 leftToCollect = safeSub(etherHardCap, etherCollected);
+    uint256 contribution = msg.value > leftToCollect ? leftToCollect : msg.value;
+    uint256 change = safeSub(msg.value, contribution);
 
-    assert(kickcityWallet.send(contribution));
-    token.issue(msg.sender, kicks);
-    etherCollected = safeAdd(etherCollected, contribution);
+    if (contribution > 0) {
+      uint256 kicks = calcKicks(contribution);
 
-    Contribution(msg.sender, contribution, kicks);
+      // transfer tokens to Kikcity wallet
+      kickcityWallet.transfer(contribution);
+
+      // Issue tokens to contributor
+      token.issue(msg.sender, kicks);
+      etherCollected = safeAdd(etherCollected, contribution);
+      Contribution(msg.sender, contribution, kicks);
+    }
+
+    // Give change back if it is present
+    if (change > 0) {
+      msg.sender.transfer(change);
+    }
   }
 
   function () payable {

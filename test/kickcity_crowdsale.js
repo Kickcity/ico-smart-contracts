@@ -128,16 +128,6 @@ contract('KickcitySale', function (_accounts) {
         });
     })
 
-    it("cannot contribute over hard cap", async () => {
-        let sale = await createOnGoingSale();
-        await sale.setHardCap(web3.toWei(2, "ether"));
-        let price = web3.toWei(5, "ether");
-
-        shouldThrow(async () => {
-            await sale.sendTransaction({ from: accounts[0], value: price });
-        });
-    });
-
     it("cannot contribute with bad gas price", async () => {
         let sale = await createOnGoingSale();
         let price = web3.toWei(1, "ether");
@@ -148,5 +138,26 @@ contract('KickcitySale', function (_accounts) {
                 gasPrice: 60000000000
             });
         });
+    });
+
+    it("cannot contribute over hard cap", async () => {
+        let sale = await createOnGoingSale();
+        let hardCap = web3.toWei(1, "ether")
+        await sale.setHardCap(hardCap);
+        let price = web3.toWei(5, "ether");
+
+        let startWalletBalance = await web3.eth.getBalance(accounts[6]);
+        let startEtherCollected = await sale.etherCollected.call();
+
+        await sale.sendTransaction({ from: accounts[0], value: price });
+
+        let userTokenBalance = await token.balanceOf.call(accounts[0]);
+        let endWalletBalance = await web3.eth.getBalance(accounts[6]);
+        let endEtherCollected = await sale.etherCollected.call();
+
+        assert.equal(userTokenBalance.toNumber(), web3.toWei(3000, "ether"), "user didn't receive tokens");
+        // Validate we received only 1 ether from user
+        assert.equal(startWalletBalance.plus(hardCap).toNumber(), endWalletBalance.toNumber(), "wallet didn't receive ether");
+        assert.equal(startEtherCollected.plus(hardCap).toNumber(), endEtherCollected.toNumber(), "ether collected value didn't get updated properly");
     });
 });
