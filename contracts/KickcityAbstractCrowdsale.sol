@@ -29,7 +29,7 @@ contract KickcityAbstractCrowdsale is Owned, SmartTokenController {
     _;
   }
 
-  address private kickcityWallet;
+  address public kickcityWallet;
 
   function KickcityAbstractCrowdsale(uint256 start, uint256 end, KickcityToken _token, address beneficiary) SmartTokenController(_token) {
     assert(start < end);

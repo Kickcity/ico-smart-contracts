@@ -3,7 +3,9 @@ pragma solidity ^0.4.11;
 import './KickcityAbstractCrowdsale.sol';
 
 contract KickcityPresale is KickcityAbstractCrowdsale {
-    function KickcityPresale(uint256 start,uint256 end,KickcityToken _token, address beneficiary) KickcityAbstractCrowdsale(start, end, _token, beneficiary) { }
+    function KickcityPresale(uint256 start,uint256 end,KickcityToken _token, address beneficiary) KickcityAbstractCrowdsale(start, end, _token, beneficiary) { 
+        setHardCap(1700 ether);
+    }
 
     uint256 private additionalBonusValue = 100 ether;
 
