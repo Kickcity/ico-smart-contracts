@@ -10,6 +10,12 @@ contract KickcityAbstractCrowdsale is Owned, SmartTokenController {
   uint256 public etherHardCap = 43100 ether;
   uint256 public etherCollected = 0;
 
+  uint256 public constant USD_IN_ETH = 300; // We use fixed rate 1ETH = 300USD
+
+  function usdCollected() constant public returns(uint256) {
+    return safeMul(etherCollected / 1 ether, USD_IN_ETH);
+  }
+
   function setHardCap(uint256 newCap) ownerOnly {
      etherHardCap = newCap;
   }

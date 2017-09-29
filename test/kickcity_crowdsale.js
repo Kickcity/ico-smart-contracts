@@ -160,4 +160,17 @@ contract('KickcitySale', function (_accounts) {
         assert.equal(startWalletBalance.plus(hardCap).toNumber(), endWalletBalance.toNumber(), "wallet didn't receive ether");
         assert.equal(startEtherCollected.plus(hardCap).toNumber(), endEtherCollected.toNumber(), "ether collected value didn't get updated properly");
     });
+
+    it("can report collected funds", async() => {
+        let sale = await createOnGoingSale();
+        let price = web3.toWei(1, "ether");
+
+        await sale.sendTransaction({ from: accounts[0], value: price });
+
+        let etherCollected = await sale.etherCollected.call();
+        let usdCollected = await sale.usdCollected.call();
+
+        assert.equal(etherCollected.toNumber(), price, "etherCollected is incorrect");
+        assert.equal(usdCollected.toNumber(), 300, "usdCollected is incorrect");
+    });
 });
