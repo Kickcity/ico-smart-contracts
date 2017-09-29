@@ -5,6 +5,11 @@ module.exports = {
       port: 8545,
       network_id: "*", // Match any network id
       gasPrice: 20000000000
+    },
+    staging: {
+      host: "localhost",
+      port: 8546,
+      network_id: "*"
     }
   }
 };
