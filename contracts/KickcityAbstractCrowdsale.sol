@@ -13,15 +13,15 @@ contract KickcityAbstractCrowdsale is Owned, SmartTokenController {
   uint256 public constant USD_IN_ETH = 300; // We use fixed rate 1ETH = 300USD
 
   function usdCollected() constant public returns(uint256) {
-    return safeMul(etherCollected / 1 ether, USD_IN_ETH);
+    return safeMul(etherCollected, USD_IN_ETH) / 1 ether;
   }
 
   function setHardCap(uint256 newCap) ownerOnly {
      etherHardCap = newCap;
   }
 
-  uint256 internal saleStartTime;
-  uint256 internal saleEndTime;
+  uint256 public saleStartTime;
+  uint256 public saleEndTime;
 
   modifier duringSale() {
     assert(now >= saleStartTime && now < saleEndTime);
