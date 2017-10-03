@@ -1,8 +1,5 @@
 # Modules
 node_modules
 
-# Binaries
-build
-
 # Dev enviroment specific
 .vscode
