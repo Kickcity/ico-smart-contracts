@@ -65,13 +65,13 @@
       "events": {},
       "links": {},
       "address": "0x297e7ff69869144740198bcdfb6aa53db677e4ca",
-      "updated_at": 1506978895804
+      "updated_at": 1507058544307
     },
     "3": {
       "events": {},
       "links": {},
       "address": "0x8a73895d1aca84038c47eb19051ee2d2fead6dec",
-      "updated_at": 1506970115417
+      "updated_at": 1507050895623
     },
     "1506969381753": {
       "events": {},
@@ -81,5 +81,5 @@
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1506978895804
+  "updated_at": 1507058544307
 }

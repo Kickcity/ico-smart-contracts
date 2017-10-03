@@ -24,7 +24,7 @@ module.exports = function (deployer, network) {
   } else if (network == "live") {
     startTime = oct4;
     endTime = oct18;
-    throw new Error("Configuration is not defined for network " + network)
+    walletAddr = "0x5cfa12bc9Db011C0d0b181511a82eACFf27e94C5"
   } else {
     throw new Error("Undefined network " + network)
   }
