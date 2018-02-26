@@ -43,7 +43,7 @@ async function shouldThrow(f) {
         assert(false, "didn't throw");
     } catch (error) {
         let strError = error.toString();
-        assert(strError.includes('invalid opcode') || strError.includes('invalid JUMP'),
+        assert(strError.includes('invalid opcode') || strError.includes('invalid JUMP') || strError.includes('revert'),
             "shoud be RPC error, but was: " + strError);
     }
 }
@@ -76,14 +76,23 @@ contract('KickcitySale', function (_accounts) {
         // 100% bonus
         let x2 = await sale.calcKicks.call(web3.toWei(150, "ether"));
         assert.equal(x2.toNumber(), web3.toWei(900000, "ether"));
+    });
 
-        let csale = await createOnGoingSale();
-        let x3 = await csale.calcKicks.call(web3.toWei(1, "ether"));
-        assert.equal(x3.toNumber(), web3.toWei(3000, "ether"));
+    it("should correctly calculate bonuses", async() => {
+        let sale1 = await createOnGoingSale();
+        // for 5th day of sale, bonus should be 10%
+        let x1 = await sale1.calcKicks.call(web3.toWei(1, "ether"));
+        assert.equal(x1.toNumber(), web3.toWei(3300, "ether"));
 
-        let newsale = await createSale(today.getTime() / 1000, addDays(today, +5).getTime() / 1000);
-        let x4 = await newsale.calcKicks.call(web3.toWei(1, "ether"));
-        assert.equal(x4.toNumber(), web3.toWei(4200, "ether"));
+        let sale2 = await createSale(today.getTime() / 1000, addDays(today, +5).getTime() / 1000);
+        // for recently started sale, bonus should be 15%
+        let x2 = await sale2.calcKicks.call(web3.toWei(1, "ether"));
+        assert.equal(x2.toNumber(), web3.toWei(3450, "ether"));
+
+        let sale3 = await createSale(addDays(today, -11).getTime() / 1000, addDays(today, +5).getTime() / 1000);
+        // for 11-20 day, bonus should be 5%
+        let x2 = await sale2.calcKicks.call(web3.toWei(1, "ether"));
+        assert.equal(x2.toNumber(), web3.toWei(3150, "ether"));
     });
 
     it("can set ether hard cap", async () => {
@@ -92,6 +101,14 @@ contract('KickcitySale', function (_accounts) {
         await sale.setHardCap(cap);
         let newCap = await sale.etherHardCap.call();
         assert.equal(cap, newCap.toNumber(), "hardcap not changed");
+    });
+
+    it("can set eth rate", async () => {
+        let sale = await createSale();
+        let rate = 500
+        await sale.setUsdEthRate(rate);
+        let newRate = await sale.oneEtherInKicks.call();
+        assert.equal(5000, newRate.toNumber(), "ETH/KCY rate not changed");
     });
 
     it("non-owner cannot set hard cap", async () => {
@@ -115,7 +132,7 @@ contract('KickcitySale', function (_accounts) {
         let endWalletBalance = await web3.eth.getBalance(accounts[6]);
         let endEtherCollected = await sale.etherCollected.call();
 
-        assert.equal(userTokenBalance.toNumber(), web3.toWei(3000, "ether"), "user didn't receive tokens");
+        assert.equal(userTokenBalance.toNumber(), web3.toWei(3300, "ether"), "user didn't receive tokens");
         assert.equal(startWalletBalance.plus(price).toNumber(), endWalletBalance.toNumber(), "wallet didn't receive ether");
         assert.equal(startEtherCollected.plus(price).toNumber(), endEtherCollected.toNumber(), "ether collected value didn't get updated properly");
     });
@@ -155,7 +172,7 @@ contract('KickcitySale', function (_accounts) {
         let endWalletBalance = await web3.eth.getBalance(accounts[6]);
         let endEtherCollected = await sale.etherCollected.call();
 
-        assert.equal(userTokenBalance.toNumber(), web3.toWei(3000, "ether"), "user didn't receive tokens");
+        assert.equal(userTokenBalance.toNumber(), web3.toWei(3300, "ether"), "user didn't receive tokens");
         // Validate we received only 1 ether from user
         assert.equal(startWalletBalance.plus(hardCap).toNumber(), endWalletBalance.toNumber(), "wallet didn't receive ether");
         assert.equal(startEtherCollected.plus(hardCap).toNumber(), endEtherCollected.toNumber(), "ether collected value didn't get updated properly");

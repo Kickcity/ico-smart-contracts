@@ -10,7 +10,12 @@ contract KickcityAbstractCrowdsale is Owned, SmartTokenController {
   uint256 public etherHardCap = 43100 ether;
   uint256 public etherCollected = 0;
 
-  uint256 public constant USD_IN_ETH = 300; // We use fixed rate 1ETH = 300USD
+  uint256 public USD_IN_ETH = 300; // We use fixed rate 1ETH = 300USD
+
+  function setUsdEthRate(uint256 newrate) ownerOnly {
+    USD_IN_ETH = newrate;
+    oneEtherInKicks = newrate * 10;
+  }
 
   function usdCollected() constant public returns(uint256) {
     return safeMul(etherCollected, USD_IN_ETH) / 1 ether;
@@ -48,8 +53,8 @@ contract KickcityAbstractCrowdsale is Owned, SmartTokenController {
   /**
   KICK token have 18 decimals, so we can calculate ether/kicks rate directly
   */
-  uint256 internal oneEtherInKicks = 3000;
-  uint256 internal minEtherContrib = 3 finney; // 0.003 ETH
+  uint256 public oneEtherInKicks = 3000;
+  uint256 public minEtherContrib = 3 finney; // 0.003 ETH
 
   function calcKicks(uint256 etherVal) constant public returns (uint256 kicksVal);
 
