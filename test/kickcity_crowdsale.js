@@ -56,7 +56,7 @@ contract('KickcitySale', function (_accounts) {
     it("should create instance of controller with correct defaults", async () => {
         let sale = await createSale();
         let hCap = await sale.etherHardCap.call();
-        assert.equal(hCap.toNumber(), web3.toWei(43100, "ether"))
+        assert.equal(hCap.toNumber(), web3.toWei(14706, "ether"))
     });
 
     it("cannot create sale with incorrenct values", async () => {
@@ -72,27 +72,27 @@ contract('KickcitySale', function (_accounts) {
         let sale = await createPresale();
         // 40% bonus
         let x1 = await sale.calcKicks.call(web3.toWei(1, "ether"));
-        assert.equal(x1.toNumber(), web3.toWei(4200, "ether"));
+        assert.equal(x1.toNumber(), web3.toWei(11900, "ether"));
         // 100% bonus
         let x2 = await sale.calcKicks.call(web3.toWei(150, "ether"));
-        assert.equal(x2.toNumber(), web3.toWei(900000, "ether"));
+        assert.equal(x2.toNumber(), web3.toWei(2550000, "ether"));
     });
 
     it("should correctly calculate bonuses", async() => {
         let sale1 = await createOnGoingSale();
         // for 5th day of sale, bonus should be 10%
         let x1 = await sale1.calcKicks.call(web3.toWei(1, "ether"));
-        assert.equal(x1.toNumber(), web3.toWei(3300, "ether"));
+        assert.equal(x1.toNumber(), web3.toWei(9350, "ether"));
 
         let sale2 = await createSale(today.getTime() / 1000, addDays(today, +5).getTime() / 1000);
         // for recently started sale, bonus should be 15%
         let x2 = await sale2.calcKicks.call(web3.toWei(1, "ether"));
-        assert.equal(x2.toNumber(), web3.toWei(3450, "ether"));
+        assert.equal(x2.toNumber(), web3.toWei(9775, "ether"));
 
         let sale3 = await createSale(addDays(today, -11).getTime() / 1000, addDays(today, +5).getTime() / 1000);
         // for 11-20 day, bonus should be 5%
-        let x2 = await sale2.calcKicks.call(web3.toWei(1, "ether"));
-        assert.equal(x2.toNumber(), web3.toWei(3150, "ether"));
+        let x3 = await sale3.calcKicks.call(web3.toWei(1, "ether"));
+        assert.equal(x3.toNumber(), web3.toWei(8925, "ether"));
     });
 
     it("can set ether hard cap", async () => {
@@ -132,7 +132,7 @@ contract('KickcitySale', function (_accounts) {
         let endWalletBalance = await web3.eth.getBalance(accounts[6]);
         let endEtherCollected = await sale.etherCollected.call();
 
-        assert.equal(userTokenBalance.toNumber(), web3.toWei(3300, "ether"), "user didn't receive tokens");
+        assert.equal(userTokenBalance.toNumber(), web3.toWei(9350, "ether"), "user didn't receive tokens");
         assert.equal(startWalletBalance.plus(price).toNumber(), endWalletBalance.toNumber(), "wallet didn't receive ether");
         assert.equal(startEtherCollected.plus(price).toNumber(), endEtherCollected.toNumber(), "ether collected value didn't get updated properly");
     });
@@ -152,7 +152,7 @@ contract('KickcitySale', function (_accounts) {
             await sale.sendTransaction({
                 from: accounts[0],
                 value: price,
-                gasPrice: 60000000000
+                gasPrice: 80000000000
             });
         });
     });
@@ -172,7 +172,7 @@ contract('KickcitySale', function (_accounts) {
         let endWalletBalance = await web3.eth.getBalance(accounts[6]);
         let endEtherCollected = await sale.etherCollected.call();
 
-        assert.equal(userTokenBalance.toNumber(), web3.toWei(3300, "ether"), "user didn't receive tokens");
+        assert.equal(userTokenBalance.toNumber(), web3.toWei(9350, "ether"), "user didn't receive tokens");
         // Validate we received only 1 ether from user
         assert.equal(startWalletBalance.plus(hardCap).toNumber(), endWalletBalance.toNumber(), "wallet didn't receive ether");
         assert.equal(startEtherCollected.plus(hardCap).toNumber(), endEtherCollected.toNumber(), "ether collected value didn't get updated properly");
@@ -188,6 +188,6 @@ contract('KickcitySale', function (_accounts) {
         let usdCollected = await sale.usdCollected.call();
 
         assert.equal(etherCollected.toNumber(), price, "etherCollected is incorrect");
-        assert.equal(usdCollected.toNumber(), 300, "usdCollected is incorrect");
+        assert.equal(usdCollected.toNumber(), 850, "usdCollected is incorrect");
     });
 });

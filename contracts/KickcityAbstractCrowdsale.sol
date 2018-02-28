@@ -7,10 +7,10 @@ import './KickcityToken.sol';
 
 
 contract KickcityAbstractCrowdsale is Owned, SmartTokenController {
-  uint256 public etherHardCap = 43100 ether;
+  uint256 public etherHardCap = 14706 ether; // 14706 * 850 = 12500100 ~ 12.5m USD
   uint256 public etherCollected = 0;
 
-  uint256 public USD_IN_ETH = 300; // We use fixed rate 1ETH = 300USD
+  uint256 public USD_IN_ETH = 850; // We use fixed rate 1ETH = 850USD
 
   function setUsdEthRate(uint256 newrate) ownerOnly {
     USD_IN_ETH = newrate;
@@ -33,7 +33,7 @@ contract KickcityAbstractCrowdsale is Owned, SmartTokenController {
     _;
   }
 
-  uint256 private maxGasPrice = 0.05 szabo; // 50 Gwei
+  uint256 private maxGasPrice = 0.06 szabo; // 60 Gwei
 
   modifier validGasPrice() {
     assert(tx.gasprice <= maxGasPrice);
@@ -53,8 +53,8 @@ contract KickcityAbstractCrowdsale is Owned, SmartTokenController {
   /**
   KICK token have 18 decimals, so we can calculate ether/kicks rate directly
   */
-  uint256 public oneEtherInKicks = 3000;
-  uint256 public minEtherContrib = 3 finney; // 0.003 ETH
+  uint256 public oneEtherInKicks = 8500;
+  uint256 public minEtherContrib = 59 finney; // 0.059 ETH ~ 50.15$
 
   function calcKicks(uint256 etherVal) constant public returns (uint256 kicksVal);
 
