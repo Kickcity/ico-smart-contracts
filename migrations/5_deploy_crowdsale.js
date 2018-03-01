@@ -2,7 +2,7 @@ var KickToken = artifacts.require("./KickcityToken.sol");
 var KickcityCrowdsale = artifacts.require("./KickcityCrowdsale");
 
 // debug dates
-const startDayTest = 1522189800; // Tuesday, 27 March 2018 22:30:00
+const startDayTest = 1519762800; // Tuesday, 27 March 2018 22:30:00
 const endDayTest = 1522540799; // Saturday, 31 March 2018 23:59:59 GMT
 
 // presale dates

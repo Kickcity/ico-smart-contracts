@@ -4,9 +4,9 @@
     "description": "Kickcity smart contracts for token and crowdsale",
     "version": "0.1.0",
     "repository": {
-      "url": ""
+        "url": ""
     },
     "dependencies": {
-        "bancor-contracts" : "0.3.3"
+        "bancor-contracts": "0.3.3"
     }
-  }
+}
